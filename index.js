@@ -16,10 +16,16 @@ app.get('/api/hello', function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 
-app.post('/api/shorturl', async (req, res) => {
-  const { url } = req.body;
+function urlValidator(url) {
+  const urlRegex = /^https:\/\/www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return urlRegex.test(url);
+}
 
-  if (!url) {
+app.post('/api/shorturl', async (req, res) => {
+
+  const { url = '' } = req.body;
+
+  if (!urlValidator(url)) {
     return res.json({ error: 'invalid url' });
   }
   const foundUrl = await Url.findOne({ originalUrl: url });
