@@ -27,7 +27,7 @@ var urlSchema = new mongoose.Schema({
   url: String
 });
 
-var urlModel = mongoose.model("url", urlSchema);
+var urlModel = mongoose.model("test", urlSchema);
 
 app.use(cors());
 
