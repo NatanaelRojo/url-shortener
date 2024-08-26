@@ -22,7 +22,6 @@ function urlValidator(url) {
 }
 
 app.post('/api/shorturl', async (req, res) => {
-
   const { url = '' } = req.body;
 
   if (!urlValidator(url)) {
@@ -34,6 +33,16 @@ app.post('/api/shorturl', async (req, res) => {
     return res.json({ original_url: newUrl.originalUrl, short_url: newUrl.shortUrl });
   }
   return res.json({ original_url: foundUrl.originalUrl, short_url: foundUrl.shortUrl });
+});
+
+app.get('/api/shorturl/:shortUrl', async (req, res) => {
+  const { shortUrl = '' } = req.params;
+
+  const foundUrl = await Url.findOne({ shortUrl });
+  if (!foundUrl) {
+    return res.json({ error: 'invalid url' });
+  }
+  return res.redirect(foundUrl.originalUrl);
 });
 
 const port = process.env.PORT || 3000;
