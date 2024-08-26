@@ -19,8 +19,8 @@ app.get('/api/hello', function (req, res) {
 function urlValidator(url) {
   // const urlRegex = /^https:\/\/www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const urlRegex = /^(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/;
-  console.log(url);
-  console.log(urlRegex.test(url));
+  // console.log(url);
+  // console.log(urlRegex.test(url));
   return urlRegex.test(url);
 }
 
