@@ -33,7 +33,7 @@ app.post('/api/shorturl', async (req, res) => {
     const newUrl = await Url.create({ originalUrl: url, shortUrl: shortId.generate() });
     return res.json({ original_url: newUrl.originalUrl, short_url: newUrl.shortUrl });
   }
-  return res.json({ original_url: foundUrl.originalUrl });
+  return res.json({ original_url: foundUrl.originalUrl, short_url: foundUrl.shortUrl });
 });
 
 const port = process.env.PORT || 3000;
