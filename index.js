@@ -36,10 +36,12 @@ function urlValidator(url) {
 // POST /api/shorturl
 app.post('/api/shorturl', (req, res) => {
   const { url = '' } = req.body;
+  const urlRegex = /^(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/;
   console.log(url);
 
   // Validate the URL
-  if (!validUrl.isUri(url)) {
+  if (!urlRegex.test(url)) {
+    // if (!validUrl.isUri(url)) {
     return res.json({ error: 'invalid url' });
   }
 
