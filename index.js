@@ -35,10 +35,10 @@ function urlValidator(url) {
 
 // POST /api/shorturl
 app.post('/api/shorturl', (req, res) => {
-  const { url } = req.body;
+  const { url = '' } = req.body;
 
   // Validate the URL
-  if (!urlValidator(url)) {
+  if (!validUrl.isUri(url)) {
     return res.json({ error: 'invalid url' });
   }
 
