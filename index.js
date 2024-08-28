@@ -25,12 +25,20 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
 
+function urlValidator(url) {
+  // const urlRegex = /^https:\/\/www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const urlRegex = /^(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/;
+  // console.log(url);
+  // console.log(urlRegex.test(url));
+  return urlRegex.test(url);
+}
+
 // POST /api/shorturl
 app.post('/api/shorturl', (req, res) => {
   const { url } = req.body;
 
   // Validate the URL
-  if (!validUrl.isUri(url)) {
+  if (!urlValidator(url)) {
     return res.json({ error: 'invalid url' });
   }
 
