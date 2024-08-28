@@ -36,6 +36,7 @@ function urlValidator(url) {
 // POST /api/shorturl
 app.post('/api/shorturl', (req, res) => {
   const { url = '' } = req.body;
+  console.log(url);
 
   // Validate the URL
   if (!validUrl.isUri(url)) {
@@ -59,6 +60,7 @@ app.post('/api/shorturl', (req, res) => {
 // GET /api/shorturl/:short_url
 app.get('/api/shorturl/:short_url', (req, res) => {
   const { short_url = '' } = req.params;
+  console.log(short_url);
 
   const originalUrl = urlDatabase[short_url];
 
