@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use("/public", express.static(process.cwd() + "/public"));
 
@@ -58,14 +58,14 @@ app.post('/api/shorturl', (req, res) => {
 
 // GET /api/shorturl/:short_url
 app.get('/api/shorturl/:short_url', (req, res) => {
-  const { short_url } = req.params;
+  const { short_url = '' } = req.params;
 
   const originalUrl = urlDatabase[short_url];
 
   if (originalUrl) {
     res.redirect(originalUrl);
   } else {
-    res.status(404).send('Not Found');
+    res.json({ error: 'invalid url' });
   }
 });
 
