@@ -48,7 +48,7 @@ function urlValidator(url) {
           // return res.json({ error: "invalid hostname" });
           return false;
         }
-        console.log(`no dns.lookup() errors, ${req.body.url} must be valid`);
+        console.log(`no dns.lookup() errors, ${url} must be valid`);
       });
     }
     return true;
