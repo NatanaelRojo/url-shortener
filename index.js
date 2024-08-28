@@ -1,41 +1,20 @@
-"use strict";
-
-var express = require("express");
-var mongo = require("mongodb");
-var mongoose = require("mongoose");
-var bodyParser = require("body-parser");
-var cors = require("cors");
-var dns = require("dns");
-var app = express();
-var router = express.Router;
+const express = require('express');
+const validUrl = require('valid-url');
+const shortId = require('shortid');
+const bodyParser = require("body-parser");
+const cors = require("cors");
 require("dotenv").config();
-// Basic Configuration
-var port = process.env.PORT || 3000;
 
-/** this project needs a db !! **/
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true });
-
-var db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", function () {
-  console.log("we're connected!");
-});
-
-//Schema n Model
-var urlSchema = new mongoose.Schema({
-  id: Number,
-  url: String
-});
-
-var urlModel = mongoose.model("test", urlSchema);
+const app = express();
+const port = process.env.PORT || 3000;
 
 app.use(cors());
-
-/** this project needs to parse POST bodies **/
-// you should mount the body-parser here
-
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use("/public", express.static(process.cwd() + "/public"));
+
+// In-memory storage for short URLs
+const urlDatabase = {};
 
 app.get("/", function (req, res) {
   res.sendFile(process.cwd() + "/views/index.html");
@@ -46,47 +25,42 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
 
-//mycode
-app.post("/api/shorturl", function (req, res) {
-  let urlRegex = /https:\/\/www.|http:\/\/www./g;
+// POST /api/shorturl
+app.post('/api/shorturl', (req, res) => {
+  const { url } = req.body;
 
-  dns.lookup(req.body.url.replace(urlRegex, ""), (err, address, family) => {
-    if (err) {
-      res.json({ "error": "invalid URL" });
-    } else {
-      urlModel
-        .find()
-        .exec()
-        .then(data => {
-          new urlModel({
-            id: data.length + 1,
-            url: req.body.url
-          })
-            .save()
-            .then(() => {
-              res.json({
-                original_url: req.body.url,
-                short_url: data.length + 1
-              });
-            })
-            .catch(err => {
-              res.json(err);
-            });
-        });
+  // Validate the URL
+  if (!validUrl.isUri(url)) {
+    return res.json({ error: 'invalid url' });
+  }
+
+  // Check if URL is already shortened
+  for (const [shortUrl, originalUrl] of Object.entries(urlDatabase)) {
+    if (originalUrl === url) {
+      return res.json({ original_url: url, short_url: shortUrl });
     }
-  });
+  }
+
+  // Generate a unique short URL
+  const shortUrl = shortId.generate(); // Generate a 6-character unique ID
+  urlDatabase[shortUrl] = url;
+
+  res.json({ original_url: url, short_url: shortUrl });
 });
 
-//get
-app.get("/api/shorturl/:number", function (req, res) {
-  urlModel
-    .find({ id: req.params.number })
-    .exec()
-    .then(url => {
-      res.redirect(url[0]["url"]);
-    });
+// GET /api/shorturl/:short_url
+app.get('/api/shorturl/:short_url', (req, res) => {
+  const { short_url } = req.params;
+
+  const originalUrl = urlDatabase[short_url];
+
+  if (originalUrl) {
+    res.redirect(originalUrl);
+  } else {
+    res.status(404).send('Not Found');
+  }
 });
 
-app.listen(port, function () {
-  console.log("Node.js listening ...");
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
